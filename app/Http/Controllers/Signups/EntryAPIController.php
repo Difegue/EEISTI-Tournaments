@@ -57,7 +57,7 @@ class EntryAPIController extends Controller {
             'real_name' => 'required',
             'name' => 'required',
             'email' => 'required|email',
-            'campus' => 'required|in:Cergy,Pau,Mixte',
+            //'campus' => 'required|in:Cergy,Pau,Mixte',
             'id_game' => 'required|numeric'
         ]);
         if ($vld->fails()) {
@@ -158,7 +158,7 @@ class EntryAPIController extends Controller {
             'id' => 'required|numeric',
             'real_name' => 'required',
             'name' => 'required',
-            'campus' => 'required|in:Cergy,Pau,Mixte',
+            //'campus' => 'required|in:Cergy,Pau,Mixte',
             'password' => 'required'
         ]);
         if ($vld->fails()) {

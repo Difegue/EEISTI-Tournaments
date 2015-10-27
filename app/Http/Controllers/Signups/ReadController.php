@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Controller;
 use App\Game;
+use App\CustomField;
 use App\Entry;
 
 /* GET API for other interfaces */
@@ -37,6 +38,10 @@ class ReadController extends Controller {
 	/* Only games */
 	function getGames() {
 		return response()->json(Game::getAll());
+	}
+
+	function getCustomFields() {
+		return response()->json(CustomField::getAll());
 	}
 }
 

@@ -22,6 +22,7 @@ $app->get('/', function() {
 $app->get('/api/entries', 'App\Http\Controllers\Signups\ReadController@getAll');
 $app->get('/api/entries/{id_game}', 'App\Http\Controllers\Signups\ReadController@getOne');
 $app->get('/api/games', 'App\Http\Controllers\Signups\ReadController@getGames');
+$app->get('/api/custom_fields', 'App\Http\Controllers\Signups\ReadController@getCustomFields');
 
 /* POST API */
 

@@ -64,7 +64,7 @@ var initializeForm = function() {
                 addPlayer();
             });
         }
-        if (current_game.multicampus == 0)
+        if (current_game.customfield_id == 0)
             $('#team-campus, .switch').hide();
         else
             $('#team-campus, .switch').show();
@@ -104,15 +104,23 @@ var initializeForm = function() {
             // Edit mode: Prefill form
             $('#solo-name').val(edit_user.name).prev().addClass("active");
             $('#solo-real-name').val(edit_user.real_name).prev().addClass("active");
+
+            //A CHANGER
             if (edit_user.campus == "Cergy")
                 $('#solo-cergy').prop("checked", true);
             else
                 $('#solo-pau').prop("checked", true);
         }
-        if (current_game.multicampus == 0)
-            $('#solo-campus').hide();
+        if (current_game.customfield_id == 0)
+            $('#solo-custom-field').hide();
         else
-            $('#solo-campus').show();
+        {
+            //We store the custom field ID stored in customfield_id(gotta change this name eventually)
+            //And generate the inputs we're going to show based on it. 
+            $('#solo-custom-field').show();
+            generateFieldForm(current_game.customfield_id);
+        }
+            
 
         triggerWhat = soloSubmit;
         $('#solo-form').openModal({
@@ -137,6 +145,44 @@ $(document).keypress(function(e) {
     }
 });
 
+//HTML generation
+function generateFieldForm(cfield_id) {
+    $('#solo-custom-field').html("");
+    $.get("api/custom_fields/", function(entries) {
+        if (entries.length == 0) {
+            //no entries, nothing to show.
+            return $('#solo-custom-field').append('');
+        }
+
+        field = entries[cfield_id-1];
+        $('#solo-custom-field').append('<label>'+field.name_of_field+'</label><br/><br/>');
+
+        for (i = 1; i <= field.number_of_fields; i++)
+        {
+            flabel = field['field_'+i];
+            $('#solo-custom-field').append('<div class="col s3">'           
+                        +'<input type="radio" name="solo-custom-field" id="solo-'+flabel.toLowerCase()+'" value="'+flabel +'" />'
+                        +'<label for="solo-'+flabel.toLowerCase()+'">'+flabel +'</label>'
+                    +'</div>');
+        }
+    });
+};
+
+//get custom field title from its id
+function insertFieldTitle(cfield_id) {
+
+    $.get("api/custom_fields/", function(entries) {
+        if (entries.length == 0) {
+            //no entries, nothing to show.
+            return "NO CUSTOM FIELD";
+        }
+
+        field = entries[cfield_id-1];
+
+        $('#custom-field-title').html(field.name_of_field);
+    });
+};
+
 // Form handling
 function soloSubmit() {
     $("#solo-form .modal-content").append('<div class="progress"><div class="indeterminate"></div></div>');
@@ -146,7 +192,7 @@ function soloSubmit() {
             real_name: $("#solo-real-name").val(),
             name: $("#solo-name").val(),
             email: $("#solo-email").val(),
-            campus: current_game.multicampus > 0 ? $("#solo-campus input:checked").val() : "Cergy"
+            campus: current_game.customfield_id > 0 ? $("#solo-custom-field input:checked").val() : "NO CUSTOM"
         })
         .done(function() {
             $(".progress").remove();
@@ -172,7 +218,7 @@ function soloSubmit() {
             real_name: $("#solo-real-name").val(),
             name: $("#solo-name").val(),
             password: $("#solo-password").val(),
-            campus: current_game.multicampus > 0 ? $("#solo-campus input:checked").val() : "Cergy"
+            campus: current_game.customfield_id > 0 ? $("#solo-custom-field input:checked").val() : "NO CUSTOM"
         })
         .done(function() {
             $(".progress").remove();
@@ -213,7 +259,7 @@ function teamSubmit() {
         $.post('api/entries/create/'+current_game.rowid, {
             name: $("#team-name").val(),
             email: $("#team-email").val(),
-            campus: current_game.multicampus > 0 ? $("#team-campus input:checked").val() : "Cergy", 
+            campus: current_game.customfield_id > 0 ? $("#team-campus input:checked").val() : "Cergy", 
             real_name: real_names,
             p_name: p_names,
             p_campus: p_campuses
@@ -245,7 +291,7 @@ function teamSubmit() {
         $.post('api/entries/edit/'+edit_user.rowid, {
             name: $("#team-name").val(),
             password: $("#team-password").val(),
-            campus: current_game.multicampus > 0 ? $("#team-campus input:checked").val() : "Cergy", 
+            campus: current_game.customfield_id > 0 ? $("#team-campus input:checked").val() : "Cergy", 
             real_name: real_names,
             p_name: p_names,
             p_campus: p_campuses
@@ -356,12 +402,12 @@ var getTeamEntries = function(game) {
                 .append(
                     $('<div class="collapsible-header"/>')
                         .append($('<i class="mdi-social-group"></i>'))
-                        .append($('<span/>').text(team.name+(game.multicampus > 0 ? ' ('+team.campus+')' : '')))
+                        .append($('<span/>').text(team.name+(game.customfield_id > 0 ? ' ('+team.campus+')' : '')))
                         .append($('<span class="right">'+dateFormat(new Date(+team.time*1000))+' &nbsp; <label class="right hide-on-small-only">Cliquer pour dérouler</label></span>'))
                 )
             ;
             
-            var trow = $('<tr><th>Nom</th><th>'+game.nickname_field+'</th>'+(game.multicampus > 0 ? '<th>Campus</th>' : '')+'<th>Date d\'inscription</th></tr>');
+            var trow = $('<tr><th>Nom</th><th>'+game.nickname_field+'</th>'+(game.customfield_id > 0 ? '<th>Campus</th>' : '')+'<th>Date d\'inscription</th></tr>');
             var l_edit = $('<th><a href="#"><i class="mdi-content-create circle blue"></i></a></th>').click(function() {
                 edit_user = team;
                 initializeForm();
@@ -394,13 +440,13 @@ var getTeamEntries = function(game) {
                     .append($('<td/>').text(player.real_name))
                     .append($('<td/>').text(player.name))
                 ;
-                if (game.multicampus > 0)
+                if (game.customfield_id > 0)
                     row.append($('<td/>').text(player.campus));
                 row
                     .append($('<td/>').text(dateFormat(new Date(+player.time*1000))))
                 ;
                 players.append(row);
-                //players.append($('<tr><td>'+player.real_name+'</td><td>'+player.name+'</td>'+(game.multicampus > 0 ? '<td>'+player.campus+'</td>' : '')+'<td>'+dateFormat(new Date(+player.time*1000))+'</td></tr>'));
+                //players.append($('<tr><td>'+player.real_name+'</td><td>'+player.name+'</td>'+(game.customfield_id > 0 ? '<td>'+player.campus+'</td>' : '')+'<td>'+dateFormat(new Date(+player.time*1000))+'</td></tr>'));
             });
             items.append(item.append($('<div class="collapsible-body"></div>').append(table.append(players))));
         });
@@ -442,7 +488,7 @@ var getSoloEntries = function(game) {
                 .append($('<td/>').text(player.real_name))
                 .append($('<td/>').text(player.name))
             ;
-            if (game.multicampus > 0)
+            if (game.customfield_id > 0)
                 row.append($('<td/>').text(player.campus));
             row
                 .append($('<td/>').text(dateFormat(new Date(+player.time*1000))))
@@ -451,7 +497,15 @@ var getSoloEntries = function(game) {
             ;
             items.append(row);
         });
-        $("#entries").append('<table><thead><tr><th>Nom</th><th>'+game.nickname_field+'</th>'+(game.multicampus > 0 ? '<th>Campus</th>' : '')+'<th>Date d\'inscription</th><th></th><th></th></tr></thead></table>');
+
+        
+        $("#entries").append('<table><thead><tr><th>Nom</th><th>'
+                                +game.nickname_field+'</th>'+(game.customfield_id > 0 ? '<th id="custom-field-title">' //the field title is inserted here !
+                                    +'</th>' : '')+'<th>Date d\'inscription</th><th></th><th></th></tr></thead></table>');
+        
+        if (game.customfield_id > 0)
+            insertFieldTitle(game.customfield_id);
+
         $("#entries table").append(items);
     });
 };

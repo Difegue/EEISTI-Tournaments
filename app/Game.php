@@ -21,7 +21,7 @@ class Game {
 	}
 */
 	static function create($game) {
-		DB::insert('INSERT INTO Games(name, num_players, nickname_field, multicampus) VALUES (:name, :num_players, :nickname_field, :multicampus)', $game);
+		DB::insert('INSERT INTO Games(name, num_players, nickname_field, customfield_id) VALUES (:name, :num_players, :nickname_field, :customfield_id)', $game);
 		$id = DB::getPdo()->lastInsertId();
 //		if (!empty($game->extra_fields)) {
 //			this.insertFields($id, $game->extra_fields);
@@ -36,7 +36,7 @@ class Game {
 	}
 
 	static function update($game) {
-		DB::update('UPDATE Games SET name=:name, num_players=:num_players, nickname_field=:nickname_field, multicampus=:multicampus WHERE rowid=:rowid', $game);
+		DB::update('UPDATE Games SET name=:name, num_players=:num_players, nickname_field=:nickname_field, customfield_id=:customfield_id WHERE rowid=:rowid', $game);
 //		DB::delete('DELETE FROM Fields WHERE id_game=:rowid', $game);
 //		if (!empty($game->extra_fields)) {
 //			this.insertFields($game->rowid, $game->extra_fields);

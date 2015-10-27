@@ -49,16 +49,11 @@
                 <label for="solo-name" id="solo-nickname-field">Pseudonyme</label>
                 <input type="text" id="solo-name" name="solo-name" length="100"/>
             </div>
-            <div class="row input-field" id="solo-campus">
-                <label>Campus</label><br/><br/>
-                <div class="col s3">
-                    <input type="radio" name="solo-campus" id="solo-cergy" value="Cergy" />
-                    <label for="solo-cergy">Cergy</label>
-                </div>
-                <div class="col s3">
-                    <input type="radio" name="solo-campus" id="solo-pau" value="Pau" />
-                    <label for="solo-pau">Pau</label>
-                </div>
+            <div class="row input-field" id="solo-custom-field">
+                <!-- CUSTOM FIELDS GO HERE WOW
+                        CHECK THE JSSSSS-->
+
+
             </div>
             <br/>
             <p>Un code sera fourni par e-mail pour confirmation de l'inscription.</p>
